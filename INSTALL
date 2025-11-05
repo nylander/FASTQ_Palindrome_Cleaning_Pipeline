@@ -1,0 +1,10 @@
+# Install instructions for Palindrome Clean Pipeline
+
+The softare [minimap2](https://github.com/lh3/minimap2) should be installed and
+available (as `minimap2`) in your PATH.
+
+Requirements (including versions tested)
+
+- perl v5.38.2
+- bash v5.2.21
+- minimap2 v2.26-r1175
