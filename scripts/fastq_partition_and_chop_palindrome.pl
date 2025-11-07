@@ -9,6 +9,7 @@ use IO::File;
 use File::Basename;
 
 my $VERSION = "0.1";
+my $SCRIPT_NAME = basename($0);
 
 my $USAGE =<<USAGE;
 
@@ -20,20 +21,21 @@ Version:
 
 Description:
   Processes FASTQ reads using palindrome/chop information from a
-  coordinate file. Palindromic reads are split, fragments shorter than a user-defined
-  minimum length are discarded. Non-palindromic reads are kept unchanged.
+  coordinate file. Palindromic reads are split, fragments shorter than a
+  user-defined minimum length are discarded. Non-palindromic reads are
+  kept unchanged.
 
-Input:
-  1. readnamefile - tab-delimited file with read IDs and chop coordinates
-  2. fastq        - input FASTQ file (can be compressed, .gz)
-  3. filterlen    - minimum fragment length to retain (bp)
+Input (positional arguments):
+  1. coords_file - tab-delimited file with read IDs and chop coordinates
+  2. fastq       - input FASTQ file (can be compressed, .gz)
+  3. filterlen   - minimum fragment length to retain (bp)
 
 Output (plain FASTQ):
   - <sample>.include.fastq : reads without palindromes (kept as-is)
   - <sample>.exclude.fastq : chopped fragments from palindromic reads
 
-Usage:
-  perl fastq_partition_and_chop_palindrome.pl coords.txt sample.fastq 1000
+Usage example:
+  perl fastq_partition_and_chop_palindrome.pl coords.tsv sample.fastq 1000
 
 USAGE
 
@@ -45,8 +47,7 @@ if ( @ARGV != 3 ) {
 
 my $read_file = $ARGV[0];
 my $fastq_file = $ARGV[1];
-my $shorted_len = $ARGV[2];
-
+my $min_len = $ARGV[2];
 my ($basename, $dir, $in_ext);
 my $chopped = 0;
 my $palindrome_middle = 0;
@@ -73,7 +74,7 @@ while (<$RF>) {
 }
 close $RF;
 
-print STDERR "to chop: $chopped, palindrome at middle: $palindrome_middle, ignored: $ignored\n";
+print STDERR "==== To chop: $chopped, palindrome at middle: $palindrome_middle, ignored: $ignored\n";
 
 # Is input compressed? Check twice.
 my $is_gz = ($fastq_file =~ /\.gz$/);
@@ -123,35 +124,31 @@ while (<$FASTQ>) {
         my @regions = split /\t/, $reads{$seqname};
         my $type = $regions[2];
         my $origlen = $regions[3];
-
         my ($newseq, $newqual, $newseq2, $newqual2);
         my $seqname2 = $seqname;
 
         if ($type == 1) {
             $seqname2 = "$seqname-dup1.2";
             $seqname = "$seqname-dup1.1";
-
             $newseq = substr $seq, 0, $regions[0];
             $newqual = substr $qual, 0, $regions[0];
-
             $newseq2 = substr $seq, $regions[0];
             $newqual2 = substr $qual, $regions[0];
         }
         else {
             $seqname2 = "$seqname-dup023.2";
             $seqname = "$seqname-dup023.1";
-
             $newseq = substr $seq, 0, $regions[1];
             $newqual = substr $qual, 0, $regions[1];
-
             $newseq2 = substr $seq, $regions[1];
             $newqual2 = substr $qual, $regions[1];
         }
 
-        if (length($newseq) >= $shorted_len) {
+        if (length($newseq) >= $min_len) {
             print $OUT_EXCLUDE "$seqname\n$newseq\n$tmp$newqual\n";
         }
-        if (length($newseq2) >= $shorted_len) {
+
+        if (length($newseq2) >= $min_len) {
             print $OUT_EXCLUDE "$seqname2\n$newseq2\n$tmp$newqual2\n";
         }
     }
@@ -164,4 +161,4 @@ $FASTQ->close;
 $OUT_INCLUDE->close;
 $OUT_EXCLUDE->close;
 
-print STDERR "All done!\n";
+print STDERR "==== End of script $SCRIPT_NAME\n";
