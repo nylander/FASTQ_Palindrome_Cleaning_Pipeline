@@ -4,28 +4,57 @@ use strict;
 use warnings;
 use POSIX;
 
-# Script Name:
-#   paf_identify_palindrome.pl
-#
-# Description:
-#   Processes PAF alignment files (e.g., from minimap2) to detect
-#   self-alignments of reads to their reverse complement (palindromic structures).
-#   Outputs overlap statistics and suggested cut positions.
-#
-#   Original source: https://yichienlee1010.github.io/script/
-#
-# Input:
-#   - PAF file from STDIN.
-#
-# Output (to STDOUT):
-#   Original PAF line plus:
-#     - overlap proportion
-#     - end classification (0=internal, 1=start, 2=end, 3=both)
-#     - normalized start and end positions (fraction of read length)
-#     - suggested cutoff coordinates
-#
-# Usage:
-#   perl paf_identify_palindrome.pl < input.paf > output.txt
+=pod
+
+=head1 NAME
+
+paf_identify_palindrome.pl
+
+=head1 DESCRIPTION
+
+Processes PAF alignment files (e.g., from L<Minimap2|https://github.com/lh3/minimap2>)
+to detect self-alignments of reads to their reverse complement (palindromic
+structures).  Outputs overlap statistics and suggested cut positions.
+
+Original source: L<YiChen Lee|https://yichienlee1010.github.io/script/>
+
+=head1 INPUT
+
+PAF format from STDIN.
+
+=head1 OUTPUT
+
+Prints original PAF line to STDOUT plus:
+
+=over 2
+
+=item *
+
+overlap proportion
+
+=item *
+
+end classification (0=internal, 1=start, 2=end, 3=both)
+
+=item *
+
+normalized start and end positions (fraction of read length)
+
+=item *
+
+suggested cutoff coordinates
+
+=back
+
+=head1 USAGE
+
+C<< paf_identify_palindrome.pl < input.paf > output.txt >>
+
+=head1 LICENSE
+
+L<MIT|https://opensource.org/license/mit/>
+
+=cut
 
 my %reads = ();
 

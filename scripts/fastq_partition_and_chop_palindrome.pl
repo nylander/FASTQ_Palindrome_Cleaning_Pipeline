@@ -3,45 +3,119 @@
 use strict;
 use warnings;
 
+use File::Basename;
 use IO::Compress::Gzip qw(gzip $GzipError);
 use IO::Uncompress::Gunzip qw(gunzip $GunzipError);
 use IO::File;
-use File::Basename;
+use Getopt::Long qw(GetOptions);
+use Pod::Usage qw(pod2usage);
 
-my $VERSION = "0.1";
 my $SCRIPT_NAME = basename($0);
 
-my $USAGE =<<USAGE;
+=pod
 
-Script Name:
-  fastq_partition_and_chop_palindrome.pl
+=head1 NAME
 
-Version:
-  $VERSION
+fastq_partition_and_chop_palindrome.pl
 
-Description:
-  Processes FASTQ reads using palindrome/chop information from a
-  coordinate file. Palindromic reads are split, fragments shorter than a
-  user-defined minimum length are discarded. Non-palindromic reads are
-  kept unchanged.
+=head1 VERSION
 
-Input (positional arguments):
-  1. coords_file - tab-delimited file with read IDs and chop coordinates
-  2. fastq       - input FASTQ file (can be compressed, .gz)
-  3. filterlen   - minimum fragment length to retain (bp)
+0.1
 
-Output (plain FASTQ):
-  - <sample>.include.fastq : reads without palindromes (kept as-is)
-  - <sample>.exclude.fastq : chopped fragments from palindromic reads
+=head1 SYNOPSIS
 
-Usage example:
-  perl fastq_partition_and_chop_palindrome.pl coords.tsv sample.fastq 1000
+ fastq_partition_and_chop_palindrome.pl [options] coords_file fastq_file min_length
 
-USAGE
+ Options:
+   -h  help message
+   -v  version
+
+ Positional arguments:
+   coords_file    tsv-formatted input file
+   fastq_file     input fastq file
+   min_length     minimum fragment length to retain
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-h,--help>
+
+Prints help message and exits.
+
+=item B<-v,--version>
+
+Prints the version and exits.
+
+=back
+
+=head1 EXAMPLE
+
+C<< fastq_partition_and_chop_palindrome.pl coords.tsv testdata.fastq 1000 >>
+
+=head1 DESCRIPTION
+
+Processes FASTQ reads using palindrome and chop information from a
+coordinate file. Palindromic reads are split, fragments shorter than a
+user-defined minimum length are discarded. Non-palindromic reads are
+kept unchanged.
+
+Original source: L<YiChen Lee|https://yichienlee1010.github.io/script/>
+
+=head2 INPUT
+
+Processes the following B<positional> arguments in order
+
+=over 4
+
+=item *
+
+B<coords_file> tab-delimited file with read IDs and chop coordinates
+
+=item *
+
+B<fastq_file> input FASTQ file (can be compressed, .gz)
+
+=item *
+
+B<min_length> minimum fragment length to retain (bp)
+
+=back
+
+=head2 OUTPUT
+
+Two files in fastq format:
+
+=over 4
+
+=item *
+
+B<fastq_file.include.fastq>: reads without palindromes (kept as-is).
+File name is based on the input F<fastq_file> basename.
+
+=item *
+
+B<fastq_file.exclude.fastq> : chopped fragments from palindromic reads
+File name is based on the input F<fastq_file> basename.
+
+=back
+
+=head1 LICENSE
+
+L<MIT|https://opensource.org/license/mit/>
+
+=cut
+
+my $help;
+my $version;
+
+GetOptions('h|help' => \$help, 'v|version' => \$version);# or pod2usage(-verbose => 0);
+pod2usage(-verbose => 2) if $help;
+pod2usage(-verbose => 99, -sections => "VERSION") if $version;
 
 if ( @ARGV != 3 ) {
     print "Error: program requires 3 arguments\n";
-    print "$USAGE\n";
+    pod2usage(-verbose => 0);
     exit;
 }
 
@@ -78,6 +152,7 @@ print STDERR "==== To chop: $chopped, palindrome at middle: $palindrome_middle, 
 
 # Is input compressed? Check twice.
 my $is_gz = ($fastq_file =~ /\.gz$/);
+
 if ($is_gz) {
     ($basename, $dir, $in_ext) = fileparse($fastq_file, qr/\.[^.]*\.gz/);
 }
