@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use POSIX;
 
-######################################################################################
 # Script Name:
 #   paf_identify_palindrome.pl
 #
@@ -12,6 +11,8 @@ use POSIX;
 #   Processes PAF alignment files (e.g., from minimap2) to detect
 #   self-alignments of reads to their reverse complement (palindromic structures).
 #   Outputs overlap statistics and suggested cut positions.
+#
+#   Original source: https://yichienlee1010.github.io/script/
 #
 # Input:
 #   - PAF file from STDIN.
@@ -25,7 +26,6 @@ use POSIX;
 #
 # Usage:
 #   perl paf_identify_palindrome.pl < input.paf > output.txt
-######################################################################################
 
 my %reads = ();
 
