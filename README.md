@@ -24,7 +24,7 @@ Main script: [`remove_palindrome.sh`](scripts/remove_palindrome.sh)
 
 ## Installation
 
-See [INSTALL](INSTALL).
+See [INSTALL.md](INSTALL.md).
 
 Tested on Ubuntu Linux 24.04.3, using bash v5.2.21, perl v5.38.2, and minimap2
 v2.26-r1175.
