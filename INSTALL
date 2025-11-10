@@ -1,4 +1,4 @@
-# Install instructions for Palindrome Clean Pipeline
+# Install instructions for the FASTQ Palindrome Cleaning Pipeline
 
 The softare [minimap2](https://github.com/lh3/minimap2) should be installed and
 available (as `minimap2`) in your PATH.
